@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>AgroKaan</title>
+  <link rel="icon" type="image/png" href="plant.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="header-container">
+    <div class="logo-container">
+      <img src="agrokaan-logo.png" alt="AgroKaan Logo" class="logo">
+    </div>
+    <h1 class="site-title">AGROKAAN</h1>
+    <p class="site-subtitle">Hortalizas</p>
+  </div>
+  <p><b>Menú de opciones:</b></p>
+  <button onclick="mostrar(1)">1. Registrar pedido</button><br>
+  <button onclick="mostrar(2)">2. Registrar pago</button><br>
+  <button onclick="mostrar(3)">3. Consultar estado del pedido</button><br>
+  <button onclick="mostrar(4)">4. Salir</button><br>
+
+  <!-- Registrar pedido (seguirá el pseudocódigo exactamente) -->
+  <div id="p1" class="panel">
+    <h2>Registrar pedido</h2>
+    <!-- El pseudocódigo escribe 'Ha seleccionado Registrar pedido' al elegir esta opción -->
+    <div id="resPedido" class="simple-message" aria-live="polite"></div>
+
+    <label>Ingrese su nombre:</label><br>
+    <input id="nombrePedido"><br>
+
+    <label>Nombre del producto:</label><br>
+    <select id="productoPedido" onchange="updateStockDisplay()">
+      <option value="">-- Seleccione un producto --</option>
+      <option value="fertilizante">Fertilizante granulado</option>
+      <option value="secante">Secante para hojas</option>
+      <option value="plaguicida">Plaguicida foliar</option>
+      <option value="micronutrientes">Micronutrientes</option>
+      <option value="lechuga">Lechuga fresca</option>
+      <option value="tomate">Tomate en rama</option>
+      <option value="zanahoria">Zanahoria orgánica</option>
+      <option value="cebolla">Cebolla dulce</option>
+    </select><br>
+
+    <div id="stockInfo" class="simple-message" style="margin-top:8px;">Stock disponible: -</div>
+
+    <label>Ingresar cantidad del producto:</label><br>
+    <input id="cantidadPedido" type="number"><br>
+
+    <button onclick="registrarPedido()">Registrar</button>
+  </div>
+
+  <!-- Registrar pago -->
+  <div id="p2" class="panel">
+    <h2>Registrar pago</h2>
+    <label>Ingrese su nombre:</label><br>
+    <input id="nombrePago"><br>
+    <label>Cantidad a pagar (MXN):</label><br>
+    <input id="cantidadPago" type="text" readonly class="price-input" aria-label="Cantidad a pagar (MXN)"><br>
+    <button onclick="registrarPago()">Pagar</button>
+    <div id="resPago" class="simple-message" aria-live="polite"></div>
+  </div>
+
+  <!-- Consultar estado -->
+  <div id="p3" class="panel">
+    <h2>Consultar estado del pedido</h2>
+    <label>Ingrese su nombre:</label><br>
+    <input id="nombreConsulta"><br>
+    <button onclick="consultarEstado()">Consultar</button>
+    <div id="resConsulta" class="simple-message" aria-live="polite"></div>
+  </div>
+
+  <!-- Salir -->
+  <div id="p4" class="panel">
+    <h2>Salir</h2>
+    <p>Proceso terminado.</p>
+  </div>
+
+  <script>
+    // Implementación literal del pseudocódigo solicitado
+
+    function mostrar(n) {
+      // ocultar todos los paneles
+      document.querySelectorAll('.panel').forEach(p => p.style.display = 'none');
+      document.getElementById('p' + n).style.display = 'block';
+
+      // limpiar mensajes e inputs cuando se cambia opción
+      const clearText = el => { if (el) el.textContent = ''; };
+      clearText(document.getElementById('resPedido'));
+      clearText(document.getElementById('resPago'));
+      clearText(document.getElementById('resConsulta'));
+
+      // limpiar campos (mantener accesibles para el usuario)
+      const clearInput = id => { const el = document.getElementById(id); if (el) el.value = ''; };
+      clearInput('nombrePedido'); clearInput('productoPedido'); clearInput('cantidadPedido');
+      clearInput('nombrePago'); clearInput('cantidadPago'); clearInput('nombreConsulta');
+
+      // Mensaje inmediato según la opción, tal como en el pseudocódigo
+      if (n === 1) {
+        document.getElementById('resPedido').textContent = 'Ha seleccionado Registrar pedido';
+        // mostrar stock actual cuando se entra al panel de registrar pedido
+        updateStockDisplay();
+      } else if (n === 2) {
+        document.getElementById('resPago').textContent = 'Ha seleccionado Registrar pago';
+      } else if (n === 3) {
+        document.getElementById('resConsulta').textContent = 'Ha seleccionado Consultar estado del pedido';
+      } else if (n === 4) {
+        // Mostrar exactamente lo que pide el pseudocódigo para Salir
+        const p4 = document.getElementById('p4');
+        p4.innerHTML = '<h2>Salir</h2><p>Ha seleccionado Salir</p><p>Proceso terminado</p>';
+      }
+    }
+
+    // 1. Registrar pedido — sigue el pseudocódigo paso a paso (sin repetir textos que ya existen en el formulario)
+    // Guardamos el pedido en `window.pedido` para que pueda pagarse después.
+    function registrarPedido() {
+      const res = document.getElementById('resPedido');
+
+      const nombre = document.getElementById('nombrePedido').value || '';
+      const producto = document.getElementById('productoPedido').value || '';
+      const cantidad = Number(document.getElementById('cantidadPedido').value) || 0;
+
+      // Mostrar la verificación tal como en el pseudocódigo (no repetir las indicaciones ya en el form)
+      res.textContent = 'Verificando disponibilidad del producto en inventario';
+
+      let hay_disponibilidad_en_inventario = false;
+      // pseudocódigo: si cantidad>0 entonces disponible
+      if (cantidad > 0) {
+        // si hay producto seleccionado, comprobar contra inventario real
+        if (producto && inventario.hasOwnProperty(producto)) {
+          const stock = Number(inventario[producto]) || 0;
+          if (cantidad > stock) {
+            // mostrar mensaje claro de cantidad insuficiente — no registrar
+            res.textContent += '\nNo disponible en inventario';
+            res.textContent += `\nLa cantidad solicitada (${cantidad}) supera el stock disponible (${stock}).`;
+            hay_disponibilidad_en_inventario = false;
+          } else {
+            res.textContent += '\nDisponible en inventario';
+            hay_disponibilidad_en_inventario = true;
+          }
+        } else {
+          // producto no especificado o sin entrada en inventario: considerarlo no disponible
+          res.textContent += '\nNo disponible en inventario';
+          hay_disponibilidad_en_inventario = false;
+        }
+      } else {
+        res.textContent += '\nNo disponible en inventario';
+        hay_disponibilidad_en_inventario = false;
+      }
+
+      if (hay_disponibilidad_en_inventario) {
+        // registrar pedido en memoria (no hay múltiples pedidos en el pseudocódigo)
+        window.pedido = { nombre, producto, cantidad, pagado: false };
+        res.textContent += '\nPedido registrado exitosamente';
+      } else {
+        res.textContent += '\nProducto no disponible';
+      }
+      // actualizar visual de stock (si el producto está seleccionado)
+      updateStockDisplay();
+    }
+
+    // Inventario inicial
+    const inventario = {
+      fertilizante: 100,
+      secante: 80,
+      plaguicida: 50,
+      micronutrientes: 60,
+      lechuga: 40,
+      tomate: 60,
+      zanahoria: 120,
+      cebolla: 80
+    };
+
+    // Actualiza la visualización del stock según producto seleccionado
+    function updateStockDisplay() {
+      const sel = document.getElementById('productoPedido');
+      const key = sel ? sel.value : '';
+      const el = document.getElementById('stockInfo');
+      if (!el) return;
+      if (!key) {
+        el.textContent = 'Stock disponible: -';
+      } else if (inventario.hasOwnProperty(key)) {
+        el.textContent = 'Stock disponible: ' + inventario[key];
+      } else {
+        el.textContent = 'Stock disponible: -';
+      }
+    }
+
+    // 2. Registrar pago — muestra solo lo solicitado (no repite campos en la parte superior)
+    function registrarPago() {
+      const res = document.getElementById('resPago');
+      const nombre = document.getElementById('nombrePago').value || '';
+      const cantidad = document.getElementById('cantidadPago').value || '';
+
+      res.textContent = 'Depositando pago';
+
+      // si existe un pedido y el nombre coincide, marcamos pagado y reducimos inventario
+      if (window.pedido && window.pedido.nombre === nombre) {
+        window.pedido.pagado = true;
+        const prod = window.pedido.producto;
+        const qty = Number(window.pedido.cantidad) || 0;
+        if (inventario.hasOwnProperty(prod)) {
+          inventario[prod] = Math.max(0, inventario[prod] - qty);
+        }
+        // calcular el monto pagado usando precios
+        const price = precios[prod] || 0;
+        const totalPago = price * qty;
+        res.textContent += '\n' + 'Pedido pagado correctamente';
+        res.textContent += '\n' + 'Cantidad pagada: MXN $' + totalPago.toFixed(2);
+      } else {
+        res.textContent += '\n' + 'Pedido pagado correctamente';
+      }
+      updateStockDisplay();
+    }
+
+      // Precios por producto (MXN)
+      const precios = {
+        fertilizante: 250.00,
+        secante: 160.00,
+        plaguicida: 315.00,
+        micronutrientes: 190.00,
+        lechuga: 15.00,
+        tomate: 25.00,
+        zanahoria: 12.00,
+        cebolla: 16.00
+      };
+
+      // Autocompleta la cantidad a pagar (readonly) según pedido registrado y precio del producto
+      function fillPagoAmount() {
+        const nombreInput = document.getElementById('nombrePago').value || '';
+        const pagoEl = document.getElementById('cantidadPago');
+
+        if (!window.pedido || window.pedido.nombre !== nombreInput) {
+          pagoEl.value = '';
+          return;
+        }
+
+        const prod = window.pedido.producto;
+        const qty = Number(window.pedido.cantidad) || 0;
+        const price = precios[prod] || 0;
+        const total = price * qty;
+        pagoEl.value = 'MXN $' + total.toFixed(2);
+      }
+
+      document.getElementById('nombrePago').addEventListener('input', fillPagoAmount);
+
+    // 3. Consultar estado — exactamente como el pseudocódigo
+    function consultarEstado() {
+      const res = document.getElementById('resConsulta');
+      const nombre = document.getElementById('nombreConsulta').value || '';
+
+      // Si no existe pedido o el nombre no coincide, informar que no existe
+      if (!window.pedido || window.pedido.nombre !== nombre) {
+        res.textContent = 'No existe un pedido con ese nombre';
+        return;
+      }
+
+      // Si existe, mostrar estado según si está pagado o no
+      if (window.pedido.pagado) {
+        res.textContent = 'Su pedido será entregado esta semana';
+      } else {
+        res.textContent = 'Pedido registrado pero no pagado';
+      }
+    }
+  </script>
+</body>
+</html>
